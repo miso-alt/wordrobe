@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Wardrobe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:        #fdf0f2;
+  --surface:   #fff7f8;
+  --surface2:  #ffeef1;
+  --border:    #f0d0d6;
+  --border2:   #e8c5cb;
+  --accent:    #c4697a;
+  --accent2:   #e8909f;
+  --accent-bg: #fce8eb;
+  --text:      #3a2228;
+  --text2:     #7a5560;
+  --text3:     #b08a92;
+  --white:     #fffbfc;
+  --shadow:    rgba(180,80,100,.10);
+  --tab-h:     58px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  min-height:100vh;
+}
+
+/* ── Header ── */
+.app-header{
+  background:var(--white);
+  border-bottom:1.5px solid var(--border);
+  padding:18px 20px 0;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px var(--shadow);
+}
+.header-top{
+  max-width:800px;margin:0 auto;
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:14px;
+}
+.app-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:600;letter-spacing:.5px;
+  color:var(--accent);
+}
+.app-title em{font-style:italic;font-weight:400;color:var(--text2);font-size:22px;margin-left:4px;}
+.autosave{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.save-dot{width:6px;height:6px;border-radius:50%;background:#b5d9b5;flex-shrink:0}
+.save-dot.saving{background:#e8a87c;animation:blink .7s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Tabs ── */
+.tabs{
+  max-width:800px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-bottom:none;
+}
+.tab{
+  padding:10px 6px 13px;
+  text-align:center;font-size:12px;font-weight:500;
+  color:var(--text3);cursor:pointer;border:none;background:none;
+  border-bottom:2.5px solid transparent;
+  transition:color .2s,border-color .2s;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.tab .tab-icon{font-size:17px}
+.tab:hover{color:var(--accent2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+/* ── Page ── */
+.page{display:none;padding:20px;max-width:800px;margin:0 auto}
+.page.active{display:block;animation:fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── Card ── */
+.card{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:16px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.card-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-weight:600;color:var(--accent);
+  margin-bottom:16px;letter-spacing:.3px;
+}
+
+/* ── Form ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:14px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:500;letter-spacing:.3px}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 13px;
+  background:var(--surface2);color:var(--text);
+  border:1.5px solid var(--border);border-radius:10px;
+  font-family:inherit;font-size:14px;
+  transition:border-color .2s,background .2s;outline:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--accent);background:var(--white);
+}
+.field textarea{resize:vertical;min-height:64px}
+
+/* ── Buttons ── */
+.btn{
+  cursor:pointer;font-family:inherit;font-weight:600;
+  border:none;border-radius:10px;padding:11px 18px;
+  font-size:14px;transition:all .15s;width:100%;display:block;
+}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#b35c6d;box-shadow:0 4px 14px var(--shadow)}
+.btn-primary:active{transform:scale(.98)}
+.btn-outline{background:transparent;color:var(--accent);border:1.5px solid var(--border2);}
+.btn-outline:hover{background:var(--accent-bg);border-color:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text3);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text2)}
+.btn-danger{background:#f0d0d4;color:#b03040;border:1.5px solid #e0b0b8;}
+.btn-danger:hover{background:#e8b8c0;color:#8b2030}
+.btn-sm{padding:6px 12px;font-size:12px;width:auto;display:inline-flex;align-items:center;gap:4px;border-radius:8px}
+
+/* ── Search ── */
+.search-wrap{position:relative;margin-bottom:14px}
+.search-wrap input{
+  width:100%;padding:10px 14px 10px 38px;
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:10px;font-family:inherit;font-size:14px;color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3)}
+
+/* ── Category filter chips ── */
+.filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.chip{
+  padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;
+  background:var(--white);color:var(--text2);border:1.5px solid var(--border);
+  transition:all .15s;white-space:nowrap;font-family:inherit;
+}
+.chip:hover{border-color:var(--accent2);color:var(--accent)}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Sort bar ── */
+.sort-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.sort-btn{
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;
+  background:var(--white);color:var(--text3);border:1.5px solid var(--border);
+  transition:all .15s;font-family:inherit;
+}
+.sort-btn:hover{color:var(--accent);border-color:var(--accent2)}
+.sort-btn.active{background:var(--surface2);color:var(--accent);border-color:var(--accent2);font-weight:600}
+
+/* ── Section label ── */
+.section-label{
+  font-size:11px;font-weight:600;color:var(--text3);
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;
+}
+
+/* ── Item count ── */
+.list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.list-title{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text2)}
+.list-count{font-size:12px;color:var(--text3);background:var(--surface2);padding:3px 10px;border-radius:20px}
+
+/* ── Wardrobe Item card ── */
+.item{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;padding:15px 16px;margin-bottom:10px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.item:hover{border-color:var(--border2);box-shadow:0 3px 14px var(--shadow)}
+.item-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.item-brand{font-weight:600;font-size:15px;color:var(--text)}
+.type-chip{
+  font-size:10px;padding:2px 9px;border-radius:12px;
+  background:var(--accent-bg);color:var(--accent);font-weight:600;white-space:nowrap;margin-left:8px;
+}
+.item-meta{font-size:12px;color:var(--text3);margin-bottom:8px;line-height:1.8}
+.item-memo{font-size:12px;color:var(--text2);font-style:italic;margin-bottom:8px;
+  padding:7px 11px;background:var(--surface2);border-radius:8px;border-left:3px solid var(--border2)}
+.item-photo{width:100%;height:auto;display:block;border-radius:10px;margin-bottom:10px}
+
+/* ── Wear row ── */
+.wear-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wear-plus{
+  padding:6px 13px;font-size:12px;font-weight:600;width:auto;
+  display:inline-flex;align-items:center;gap:4px;border-radius:8px;cursor:pointer;
+  background:var(--accent-bg);color:var(--accent);border:1.5px solid var(--border2);font-family:inherit;
+  transition:all .15s;
+}
+.wear-plus:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.wear-input-wrap{display:flex;align-items:center;gap:5px}
+.wear-input{
+  width:56px;padding:5px 8px;text-align:center;font-size:13px;font-weight:600;
+  background:var(--surface2);color:var(--text);border:1.5px solid var(--border);
+  border-radius:8px;font-family:inherit;outline:none;transition:border-color .2s;
+}
+.wear-input:focus{border-color:var(--accent)}
+.wear-unit{font-size:12px;color:var(--text3)}
+.wear-cpw{font-size:12px;font-weight:600;color:var(--accent);margin-left:2px}
+.item-del{padding:6px 10px;font-size:12px;border-radius:8px;cursor:pointer;
+  background:transparent;color:#c08090;border:1.5px solid #f0d0d8;font-family:inherit;
+  transition:all .15s;display:inline-flex;align-items:center;gap:3px;width:auto;
+}
+.item-del:hover{background:#f8e0e4;color:#a03040;border-color:#d0a0aa}
+.item-edit{padding:6px 10px;font-size:12px;border-radius:8px;cursor:pointer;
+  background:transparent;color:var(--text2);border:1.5px solid var(--border2);font-family:inherit;
+  transition:all .15s;display:inline-flex;align-items:center;gap:3px;width:auto;
+}
+.item-edit:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent2)}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state .e-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.empty-state p{font-size:13px}
+
+/* ── Stats ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-tile{
+  background:var(--white);border:1.5px solid var(--border);border-radius:14px;
+  padding:14px 16px;
+}
+.stat-tile.wide{grid-column:1/-1}
+.stat-lbl{font-size:11px;color:var(--text3);font-weight:500;margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:700;color:var(--accent);font-family:'Cormorant Garamond',serif}
+.stat-val.sm{font-size:15px}
+
+.type-bars{margin-top:4px}
+.type-bar-row{margin-bottom:9px}
+.type-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px}
+.type-bar-track{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.type-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+
+/* ── Settings ── */
+.settings-section{margin-bottom:22px}
+.backup-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.backup-row .btn{flex:1;min-width:140px}
+
+.active-file-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  background:var(--accent-bg);border:1.5px solid var(--border2);border-radius:12px;
+  padding:10px 14px;margin-bottom:12px;
+}
+.active-file-bar.hidden{display:none}
+.af-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.af-name{font-size:13px;color:var(--accent);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-overwrite{
+  background:var(--accent);color:#fff;border:none;
+  padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap;font-family:inherit;transition:background .15s;
+}
+.btn-overwrite:hover{background:#b35c6d}
+
+label.btn-file{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;width:100%;
+}
+label.btn-file input{display:none}
+.fsapi-note{font-size:11px;color:var(--text3);margin-top:6px}
+.fsapi-note.warn{color:#b06040}
+
+.gdrive-setup{
+  border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-top:12px;
+}
+.gdrive-summary{
+  padding:12px 16px;cursor:pointer;font-size:13px;color:var(--text2);font-weight:500;
+  background:var(--surface2);list-style:none;display:flex;align-items:center;gap:6px;
+}
+.gdrive-summary::-webkit-details-marker{display:none}
+.gdrive-summary::after{content:'▾';margin-left:auto;transition:transform .2s;color:var(--text3)}
+details[open] .gdrive-summary::after{transform:rotate(180deg)}
+.gdrive-body{padding:16px;background:var(--white)}
+.gdrive-status{display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.gdot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.gdot.on{background:#6dbf8a}
+.gdot.spin{background:#e8a87c;animation:blink .8s infinite}
+.gdrive-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.gdrive-btns .btn{width:auto}
+.gdrive-help{
+  margin-top:14px;padding:12px 14px;background:var(--surface2);border-radius:10px;
+  border:1px solid var(--border);font-size:12px;color:var(--text3);line-height:1.9;
+}
+.gdrive-help strong{color:var(--text2)}
+.gdrive-help ol{padding-left:16px}
+.gdrive-help a{color:var(--accent);text-decoration:none}
+
+/* ── Drive modal ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(58,34,40,.45);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.hidden{display:none}
+.modal{
+  background:var(--white);border:1.5px solid var(--border);border-radius:18px;
+  width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;
+  box-shadow:0 12px 40px rgba(180,80,100,.18);
+}
+.modal-hd{padding:16px 18px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hd-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--accent)}
+.modal-x{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:2px 6px;width:auto}
+.modal-x:hover{color:var(--accent)}
+.modal-bd{padding:14px 18px;overflow-y:auto;flex:1}
+.drive-file{
+  padding:11px 13px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;
+}
+.drive-file:hover{background:var(--accent-bg);border-color:var(--accent2)}
+.drive-file .df-name{font-size:14px;font-weight:600;color:var(--text)}
+.drive-file .df-date{font-size:11px;color:var(--text3);margin-top:2px}
+.modal-ft{padding:12px 18px;border-top:1.5px solid var(--border);display:flex;justify-content:flex-end}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;padding:10px 22px;border-radius:10px;
+  font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:300;
+  box-shadow:0 4px 18px var(--shadow);white-space:nowrap;
+}
+.toast.show{opacity:1}
+.toast.err{background:#b04050}
+
+/* ── フィールドタブ（入力 / お気に入り） ── */
+.field-tabs{display:flex;gap:0;margin-bottom:6px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content}
+.field-tab{
+  padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;
+  background:transparent;color:var(--text3);border:none;font-family:inherit;
+  transition:background .15s,color .15s;
+}
+.field-tab.active{background:var(--accent);color:#fff}
+.field-tab:not(.active):hover{background:var(--surface2);color:var(--text2)}
+
+.fav-picker{display:flex;flex-wrap:wrap;gap:6px;padding:8px;
+  background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;min-height:42px}
+.fav-picker.hidden{display:none}
+.fav-pick-chip{
+  padding:5px 13px;border-radius:16px;font-size:12px;font-weight:500;cursor:pointer;
+  background:var(--white);color:var(--text2);border:1.5px solid var(--border2);
+  font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+.fav-pick-chip:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fav-picker-empty{font-size:12px;color:var(--text3);padding:4px 2px;align-self:center}
+
+/* ── 設定：お気に入りリスト ── */
+.fav-add-row{display:flex;gap:8px;margin-bottom:12px}
+.fav-add-row input{flex:1}
+.fav-add-row .btn{width:auto;padding:10px 16px;white-space:nowrap}
+.fav-list{display:flex;flex-wrap:wrap;gap:7px}
+.fav-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 8px 5px 13px;border-radius:16px;
+  background:var(--accent-bg);color:var(--accent);
+  border:1.5px solid var(--border2);font-size:12px;font-weight:500;
+}
+.fav-tag-del{
+  background:none;border:none;cursor:pointer;color:var(--accent2);
+  font-size:13px;line-height:1;width:auto;padding:0;display:flex;align-items:center;
+  transition:color .15s;
+}
+.fav-tag-del:hover{color:#a03040}
+.fav-empty{font-size:12px;color:var(--text3);padding:4px 0}
+
+@media(max-width:480px){
+  .grid2{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr}
+  .stat-tile.wide{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="app-title">My Wardrobe <em>Pro</em></div>
+    <div class="autosave"><span class="save-dot" id="save-dot"></span><span id="save-lbl">保存済み</span></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-page="register"><span class="tab-icon">✏️</span>登録</button>
+    <button class="tab" data-page="wardrobe"><span class="tab-icon">👗</span>ワードローブ</button>
+    <button class="tab" data-page="stats"><span class="tab-icon">📊</span>統計</button>
+    <button class="tab" data-page="settings"><span class="tab-icon">⚙️</span>設定</button>
+  </nav>
+</header>
+
+<!-- ═══ PAGE: 登録 ═══ -->
+<div class="page active" id="page-register">
+  <div class="card">
+    <div class="card-title">新しいアイテムを登録</div>
+    <div class="grid2">
+      <div class="field">
+        <label>種類</label>
+        <select id="f-type">
+          <option>コート</option><option>ジャケット</option><option>スーツ</option>
+          <option>シャツ</option><option>Tシャツ</option><option>パンツ</option>
+          <option>靴</option><option>時計</option><option>バッグ</option>
+          <option>アクセサリー</option><option>カジュアル</option><option>その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ブランド</label>
+        <div class="field-tabs" id="brand-tabs">
+          <button class="field-tab active" data-ftab="input" data-target="brand">テキスト入力</button>
+          <button class="field-tab" data-ftab="fav" data-target="brand">お気に入り</button>
+        </div>
+        <input id="f-brand" placeholder="例: UNIQLO（未登録ブランドも可）"/>
+        <div class="fav-picker hidden" id="fav-picker-brand"></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>購入日</label>
+        <input type="date" id="f-date"/>
+      </div>
+      <div class="field">
+        <label>購入店</label>
+        <div class="field-tabs" id="shop-tabs">
+          <button class="field-tab active" data-ftab="input" data-target="shop">テキスト入力</button>
+          <button class="field-tab" data-ftab="fav" data-target="shop">お気に入り</button>
+        </div>
+        <input id="f-shop" placeholder="例: 新宿伊勢丹"/>
+        <div class="fav-picker hidden" id="fav-picker-shop"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>購入金額 (¥)</label>
+      <input type="number" id="f-price" min="0" placeholder="0"/>
+    </div>
+    <div class="field">
+      <label>メモ</label>
+      <textarea id="f-memo" placeholder="サイズ、色、素材など"></textarea>
+    </div>
+    <div class="field">
+      <label>写真</label>
+      <input type="file" id="f-photo" accept="image/*"/>
+    </div>
+    <button class="btn btn-primary" id="btn-add">登録する</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE: ワードローブ ═══ -->
+<div class="page" id="page-wardrobe">
+  <div class="search-wrap">
+    <span class="ico">🔍</span>
+    <input id="search" placeholder="ブランド・種類・購入店で検索…"/>
+  </div>
+
+  <!-- カテゴリフィルター -->
+  <div class="section-label">カテゴリ</div>
+  <div class="filter-bar" id="filter-bar">
+    <button class="chip active" data-cat="すべて">すべて</button>
+    <button class="chip" data-cat="コート">コート</button>
+    <button class="chip" data-cat="ジャケット">ジャケット</button>
+    <button class="chip" data-cat="スーツ">スーツ</button>
+    <button class="chip" data-cat="シャツ">シャツ</button>
+    <button class="chip" data-cat="Tシャツ">Tシャツ</button>
+    <button class="chip" data-cat="パンツ">パンツ</button>
+    <button class="chip" data-cat="靴">靴</button>
+    <button class="chip" data-cat="時計">時計</button>
+    <button class="chip" data-cat="バッグ">バッグ</button>
+    <button class="chip" data-cat="アクセサリー">アクセサリー</button>
+    <button class="chip" data-cat="カジュアル">カジュアル</button>
+    <button class="chip" data-cat="その他">その他</button>
+  </div>
+
+  <!-- ソート -->
+  <div class="section-label">並び替え</div>
+  <div class="sort-bar">
+    <button class="sort-btn active" data-sort="newest">新しい順</button>
+    <button class="sort-btn" data-sort="price-high">高い順</button>
+    <button class="sort-btn" data-sort="price-low">安い順</button>
+    <button class="sort-btn" data-sort="most-worn">着用多い順</button>
+  </div>
+
+  <div class="list-header">
+    <div class="list-title">アイテム</div>
+    <div class="list-count"><span id="count">0</span> 件</div>
+  </div>
+  <div id="list"></div>
+</div>
+
+<!-- ═══ PAGE: 統計 ═══ -->
+<div class="page" id="page-stats">
+  <div id="stats-content"></div>
+</div>
+
+<!-- ═══ PAGE: 設定 ═══ -->
+<div class="page" id="page-settings">
+
+  <div class="card">
+    <div class="card-title">バックアップ</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.8">
+      データはブラウザに自動保存されます。<br>
+      キャッシュ削除で消えることがあるため、定期的な保存をおすすめします。
+    </p>
+
+    <div class="active-file-bar hidden" id="active-file-bar">
+      <div class="af-info">
+        <span>📄</span>
+        <span class="af-name" id="active-file-name"></span>
+      </div>
+      <button class="btn-overwrite" id="btn-overwrite">💾 上書き保存</button>
+    </div>
+
+    <div class="backup-row">
+      <button class="btn btn-primary" id="btn-backup-save">💾 フォルダに保存</button>
+      <label class="btn btn-outline btn-file" for="import-file">
+        📂 ファイルから読み込む
+        <input type="file" id="import-file" accept=".json"/>
+      </label>
+    </div>
+    <div class="fsapi-note" id="fsapi-note"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">お気に入り管理</div>
+
+    <div class="settings-section">
+      <div class="section-label">ブランド</div>
+      <div class="fav-add-row">
+        <input id="fav-brand-input" placeholder="ブランド名を追加…"/>
+        <button class="btn btn-primary" id="btn-fav-brand-add">追加</button>
+      </div>
+      <div class="fav-list" id="fav-brand-list"></div>
+    </div>
+
+    <div class="settings-section" style="margin-top:20px">
+      <div class="section-label">購入店</div>
+      <div class="fav-add-row">
+        <input id="fav-shop-input" placeholder="購入店を追加…"/>
+        <button class="btn btn-primary" id="btn-fav-shop-add">追加</button>
+      </div>
+      <div class="fav-list" id="fav-shop-list"></div>
+    </div>
+  </div>
+
+
+    <details id="gdrive-details">
+      <summary class="gdrive-summary">☁️ Google Drive 連携設定</summary>
+      <div class="gdrive-body">
+        <div class="gdrive-status">
+          <span class="gdot" id="gdot"></span>
+          <span id="gdrive-status-text" style="font-size:13px;color:var(--text2)">未接続</span>
+        </div>
+        <div class="field">
+          <label>Google OAuth Client ID</label>
+          <input id="gdrive-client-id" placeholder="xxx.apps.googleusercontent.com"/>
+        </div>
+        <div class="gdrive-btns">
+          <button class="btn btn-outline btn-sm" id="btn-gdrive-save-cfg">設定を保存</button>
+          <button class="btn btn-primary btn-sm" id="btn-gdrive-connect" disabled>Googleで接続</button>
+          <button class="btn btn-ghost btn-sm" id="btn-gdrive-disconnect" style="display:none">切断</button>
+        </div>
+        <div class="backup-row" style="margin-top:14px">
+          <button class="btn btn-outline" id="btn-gdrive-save">☁️ Driveに保存</button>
+          <button class="btn btn-ghost" id="btn-gdrive-load">☁️ Driveから読込</button>
+        </div>
+        <div class="gdrive-help">
+          <strong>初回設定手順:</strong>
+          <ol>
+            <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> でプロジェクト作成</li>
+            <li>「APIとサービス」→「ライブラリ」→「Google Drive API」を有効化</li>
+            <li>「認証情報」→「OAuthクライアントID」作成（ウェブアプリ）</li>
+            <li>承認済みJSオリジンにこのページのURLを追加</li>
+            <li>Client IDを上に貼り付けて「設定を保存」</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<!-- Drive ファイル選択モーダル -->
+<div class="modal-bg hidden" id="drive-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title">Google Drive からファイルを選択</span>
+      <button class="modal-x" id="modal-close">✕</button>
+    </div>
+    <div class="modal-bd" id="modal-body"><div style="text-align:center;padding:30px;color:var(--text3)">読み込み中…</div></div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" id="modal-cancel">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- 編集モーダル -->
+<div class="modal-bg hidden" id="edit-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd">
+      <span class="modal-hd-title">✏️ アイテムを編集</span>
+      <button class="modal-x" id="edit-modal-close">✕</button>
+    </div>
+    <div class="modal-bd" style="padding:18px 20px">
+      <div class="grid2">
+        <div class="field">
+          <label>種類</label>
+          <select id="edit-type">
+            <option>コート</option><option>ジャケット</option><option>スーツ</option>
+            <option>シャツ</option><option>Tシャツ</option><option>パンツ</option>
+            <option>靴</option><option>時計</option><option>バッグ</option>
+            <option>アクセサリー</option><option>カジュアル</option><option>その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ブランド</label>
+          <input id="edit-brand" placeholder="例: UNIQLO（空白でも可）"/>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>購入日</label>
+          <input type="date" id="edit-date"/>
+        </div>
+        <div class="field">
+          <label>購入店</label>
+          <input id="edit-shop" placeholder="例: 新宿伊勢丹"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>購入金額 (¥)</label>
+        <input type="number" id="edit-price" min="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>メモ</label>
+        <textarea id="edit-memo" placeholder="サイズ、色、素材など" style="min-height:72px"></textarea>
+      </div>
+      <div class="field">
+        <label>写真を差し替える（省略可）</label>
+        <input type="file" id="edit-photo" accept="image/*"/>
+        <div id="edit-photo-preview" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="modal-ft" style="gap:10px">
+      <button class="btn btn-ghost btn-sm" id="edit-cancel">キャンセル</button>
+      <button class="btn btn-primary btn-sm" id="edit-save" style="padding:8px 22px">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+// ────────────────────────────
+// State
+// ────────────────────────────
+let wardrobe    = loadLS();
+let currentSort = 'newest';
+let currentCat  = 'すべて';
+let fsHandle    = null;
+let gToken      = null;
+let gFileId     = null;
+let gTokenClient= null;
+let gModalMode  = null;
+
+// ────────────────────────────
+// Favorites (brands / shops)
+// ────────────────────────────
+function loadFavs(key){
+  try{return JSON.parse(localStorage.getItem(key)||'[]');}catch{return [];}
+}
+function saveFavs(key,arr){
+  try{localStorage.setItem(key,JSON.stringify(arr));}catch{}
+}
+function addFav(key,val){
+  const arr=loadFavs(key);
+  if(!val||arr.includes(val))return false;
+  arr.push(val);saveFavs(key,arr);return true;
+}
+function removeFav(key,val){
+  saveFavs(key,loadFavs(key).filter(v=>v!==val));
+}
+
+// ─ render favorites settings list ─
+function renderFavSettings(type){
+  const key='fav_'+type+'s'; // fav_brands / fav_shops
+  const listEl=$(type==='brand'?'fav-brand-list':'fav-shop-list');
+  const arr=loadFavs(key);
+  if(!arr.length){listEl.innerHTML='<span class="fav-empty">まだ登録がありません</span>';return;}
+  listEl.innerHTML=arr.map(v=>`
+    <span class="fav-tag">
+      ${esc(v)}
+      <button class="fav-tag-del" data-fav-del="${type}" data-val="${esc(v)}" title="削除">✕</button>
+    </span>`).join('');
+}
+
+// ─ render picker chips inside register form ─
+function renderFavPicker(type){
+  const key='fav_'+type+'s';
+  const pickerEl=$('fav-picker-'+type);
+  const arr=loadFavs(key);
+  if(!arr.length){
+    pickerEl.innerHTML='<span class="fav-picker-empty">設定タブからお気に入りを登録できます</span>';
+    return;
+  }
+  pickerEl.innerHTML=arr.map(v=>`
+    <button class="fav-pick-chip" data-pick-type="${type}" data-val="${esc(v)}">${esc(v)}</button>
+  `).join('');
+}
+
+// ────────────────────────────
+// LocalStorage
+// ────────────────────────────
+function loadLS(){
+  try{return JSON.parse(localStorage.getItem('wardrobe')||'[]');}catch{return [];}
+}
+let saveTimer;
+function saveData(){
+  const dot=$('save-dot'),lbl=$('save-lbl');
+  dot.classList.add('saving');lbl.textContent='保存中…';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem('wardrobe',JSON.stringify(wardrobe));
+      dot.classList.remove('saving');
+      const t=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+      lbl.textContent=`自動保存済み（${t}）`;
+    }catch(e){
+      dot.classList.remove('saving');dot.style.background='#d08080';
+      lbl.textContent='⚠️ 保存失敗';
+    }
+  },400);
+}
+
+// ────────────────────────────
+// DOM
+// ────────────────────────────
+const $=id=>document.getElementById(id);
+const fType=$('f-type'),fBrand=$('f-brand'),fDate=$('f-date'),fShop=$('f-shop');
+const fPrice=$('f-price'),fMemo=$('f-memo'),fPhoto=$('f-photo');
+const listEl=$('list'),countEl=$('count'),searchEl=$('search'),toastEl=$('toast');
+const activeFileBar=$('active-file-bar'),activeFileName=$('active-file-name');
+const driveModal=$('drive-modal'),modalBody=$('modal-body');
+
+// ────────────────────────────
+// Sanitize
+// ────────────────────────────
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+// ────────────────────────────
+// Toast
+// ────────────────────────────
+function showToast(msg,err){
+  toastEl.textContent=msg;
+  toastEl.className='toast'+(err?' err':'');
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'),2600);
+}
+
+// ────────────────────────────
+// Tab navigation
+// ────────────────────────────
+document.getElementById('tabs').addEventListener('click',e=>{
+  const tab=e.target.closest('[data-page]');
+  if(!tab)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  tab.classList.add('active');
+  $('page-'+tab.dataset.page).classList.add('active');
+  if(tab.dataset.page==='wardrobe') renderList();
+  if(tab.dataset.page==='stats')    renderStats();
+  if(tab.dataset.page==='settings'){renderFavSettings('brand');renderFavSettings('shop');}
+});
+
+// ────────────────────────────
+// Add item
+// ────────────────────────────
+function addItem(){
+  const brand=fBrand.value.trim()||null;
+  const file=fPhoto.files[0];
+  function create(photo){
+    wardrobe.push({
+      id:Date.now()+'_'+Math.random().toString(36).slice(2,8),
+      type:fType.value,brand,date:fDate.value||null,
+      shop:fShop.value.trim()||null,
+      price:Math.max(0,Number(fPrice.value)||0),
+      memo:fMemo.value.trim()||null,
+      wear:0,photo,createdAt:new Date().toISOString()
+    });
+    saveData();clearForm();showToast('✓ 登録しました');
+  }
+  if(file)resizeImg(file,create);else create(null);
+}
+
+// 1MB上限・圧縮処理
+// base64で保存するため 1MB画像 ≒ 1.37MB文字列。
+// 目標: 保存後のbase64が 1,400,000文字(≒1MB)以内に収まるよう圧縮。
+const MAX_B64=1_400_000; // ~1MBバイナリ相当
+
+function resizeImg(file,cb){
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      // まずオリジナルサイズのまま試す
+      compressToLimit(img,img.width,img.height,0.88,cb);
+    };
+    img.src=e.target.result;
+  };
+  r.onerror=()=>{showToast('⚠️ 写真読み込み失敗',true);cb(null);};
+  r.readAsDataURL(file);
+}
+
+function compressToLimit(img,w,h,quality,cb){
+  const c=document.createElement('canvas');
+  c.width=w;c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
+  const data=c.toDataURL('image/jpeg',quality);
+  if(data.length<=MAX_B64){cb(data);return;}
+  // サイズオーバーなら縮小して再試行
+  const nextScale=Math.sqrt(MAX_B64/data.length)*0.95;
+  const nw=Math.round(w*nextScale);
+  const nh=Math.round(h*nextScale);
+  if(nw<80||nh<80){showToast('⚠️ 圧縮後も1MBを超えるため保存できません',true);cb(null);return;}
+  compressToLimit(img,nw,nh,0.82,cb);
+}
+
+function clearForm(){fBrand.value='';fShop.value='';fPrice.value='';fMemo.value='';fPhoto.value='';}
+
+// ────────────────────────────
+// Wear count
+// ────────────────────────────
+function addWear(id){
+  const item=wardrobe.find(i=>i.id===id);
+  if(!item)return;
+  item.wear=Math.max(0,item.wear+1);
+  saveData();patchWear(id);
+}
+function setWear(id,val){
+  const item=wardrobe.find(i=>i.id===id);
+  if(!item)return;
+  const n=parseInt(val,10);
+  if(isNaN(n)||n<0)return;
+  item.wear=n;saveData();patchWear(id);
+}
+function patchWear(id){
+  const item=wardrobe.find(i=>i.id===id);
+  if(!item)return;
+  const row=listEl.querySelector(`.wear-row[data-id="${id}"]`);
+  if(!row)return;
+  const inp=row.querySelector('.wear-input');
+  if(inp&&document.activeElement!==inp)inp.value=item.wear;
+  const cpwEl=row.querySelector('.wear-cpw');
+  if(cpwEl)cpwEl.textContent=item.wear>0?'⚡ ¥'+Math.round(item.price/item.wear).toLocaleString()+'/回':'';
+  renderStats();
+}
+
+function deleteItem(id){
+  if(!confirm('このアイテムを削除しますか？'))return;
+  wardrobe=wardrobe.filter(i=>i.id!==id);
+  saveData();renderList();showToast('削除しました');
+}
+
+// ────────────────────────────
+// Filter + Sort
+// ────────────────────────────
+function getItems(){
+  const q=searchEl.value.trim().toLowerCase();
+  let items=currentCat==='すべて'?wardrobe:wardrobe.filter(i=>i.type===currentCat);
+  if(q)items=items.filter(i=>
+    (i.brand||'').toLowerCase().includes(q)||
+    (i.type||'').toLowerCase().includes(q)||
+    (i.shop||'').toLowerCase().includes(q)
+  );
+  const s=[...items];
+  if(currentSort==='newest')     return s.reverse();
+  if(currentSort==='price-high') return s.sort((a,b)=>b.price-a.price);
+  if(currentSort==='price-low')  return s.sort((a,b)=>a.price-b.price);
+  if(currentSort==='most-worn')  return s.sort((a,b)=>b.wear-a.wear);
+  return s;
+}
+
+// ────────────────────────────
+// Render list
+// ────────────────────────────
+function renderList(){
+  const items=getItems();
+  countEl.textContent=items.length;
+  if(!items.length){
+    listEl.innerHTML='<div class="empty-state"><div class="e-icon">👗</div><p>アイテムがありません</p></div>';
+    return;
+  }
+  listEl.innerHTML=items.map(item=>{
+    const cpw=item.wear>0?'⚡ ¥'+Math.round(item.price/item.wear).toLocaleString()+'/回':'';
+    return`<div class="item">
+      <div class="item-top">
+        <span class="item-brand">${esc(item.brand)||'(名称なし)'}</span>
+        <span class="type-chip">${esc(item.type)}</span>
+      </div>
+      <div class="item-meta">
+        ${item.date?'📅 '+esc(item.date):''}${item.shop?' &nbsp;🏬 '+esc(item.shop):''}<br>
+        💰 ¥${item.price.toLocaleString()}
+      </div>
+      ${item.memo?`<div class="item-memo">${esc(item.memo)}</div>`:''}
+      ${item.photo?`<img class="item-photo" src="${item.photo}" alt="${esc(item.brand)}" loading="lazy"/>`:''}
+      <div class="wear-row" data-id="${item.id}">
+        <button class="wear-plus" data-action="wear" data-id="${item.id}">👕 着た +1</button>
+        <div class="wear-input-wrap">
+          <input class="wear-input" type="number" min="0" value="${item.wear}"
+            data-action="set-wear" data-id="${item.id}"/>
+          <span class="wear-unit">回</span>
+        </div>
+        <span class="wear-cpw">${cpw}</span>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="item-edit" data-action="edit" data-id="${item.id}">✏️ 編集</button>
+          <button class="item-del" data-action="delete" data-id="${item.id}">🗑 削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ────────────────────────────
+// Render stats
+// ────────────────────────────
+function renderStats(){
+  const el=$('stats-content');
+  if(!wardrobe.length){
+    el.innerHTML='<div class="empty-state"><div class="e-icon">📊</div><p>データがありません</p></div>';
+    return;
+  }
+  let total=0,totalWear=0;
+  const types={};
+  let mostWorn=wardrobe[0],bestCpw=null;
+  wardrobe.forEach(i=>{
+    total+=i.price;totalWear+=i.wear;
+    types[i.type]=(types[i.type]||{count:0,price:0});
+    types[i.type].count++;types[i.type].price+=i.price;
+    if(i.wear>mostWorn.wear)mostWorn=i;
+    if(i.wear>0){const c=i.price/i.wear;if(!bestCpw||c<bestCpw.c)bestCpw={item:i,c};}
+  });
+  const avgPrice=wardrobe.length?Math.round(total/wardrobe.length):0;
+
+  let html=`<div class="stat-grid">
+    <div class="stat-tile">
+      <div class="stat-lbl">総資産</div>
+      <div class="stat-val">¥${total.toLocaleString()}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-lbl">アイテム数</div>
+      <div class="stat-val">${wardrobe.length}<span style="font-size:14px;color:var(--text3)"> 点</span></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-lbl">総着用回数</div>
+      <div class="stat-val">${totalWear}<span style="font-size:14px;color:var(--text3)"> 回</span></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-lbl">平均単価</div>
+      <div class="stat-val">¥${avgPrice.toLocaleString()}</div>
+    </div>`;
+
+  if(mostWorn&&mostWorn.wear>0)
+    html+=`<div class="stat-tile">
+      <div class="stat-lbl">最多着用</div>
+      <div class="stat-val sm">${esc(mostWorn.brand)}</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px">${mostWorn.wear}回 / ${esc(mostWorn.type)}</div>
+    </div>`;
+
+  if(bestCpw)
+    html+=`<div class="stat-tile">
+      <div class="stat-lbl">コスパ最高</div>
+      <div class="stat-val sm">${esc(bestCpw.item.brand)}</div>
+      <div style="font-size:12px;color:var(--accent);margin-top:2px">¥${Math.round(bestCpw.c).toLocaleString()}/回</div>
+    </div>`;
+
+  html+='</div>';
+
+  // カテゴリ別
+  html+=`<div class="card"><div class="card-title">カテゴリ別資産</div><div class="type-bars">`;
+  const sorted=Object.entries(types).sort((a,b)=>b[1].price-a[1].price);
+  sorted.forEach(([t,v])=>{
+    const pct=total>0?Math.round(v.price/total*100):0;
+    html+=`<div class="type-bar-row">
+      <div class="type-bar-label">
+        <span>${esc(t)} <span style="color:var(--text3);font-size:10px">(${v.count}点)</span></span>
+        <span>¥${v.price.toLocaleString()} <span style="color:var(--text3)">${pct}%</span></span>
+      </div>
+      <div class="type-bar-track"><div class="type-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  });
+  html+='</div></div>';
+
+  el.innerHTML=html;
+}
+
+// ────────────────────────────
+// JSON helpers
+// ────────────────────────────
+function makeJSON(){return JSON.stringify(wardrobe,null,2);}
+function importText(text){
+  try{
+    const data=JSON.parse(text);
+    if(!Array.isArray(data))throw new Error('配列ではありません');
+    data.forEach(item=>{
+      if(!item.id)item.id=Date.now()+'_'+Math.random().toString(36).slice(2,8);
+      if(typeof item.wear!=='number')item.wear=0;
+      if(typeof item.price!=='number')item.price=0;
+    });
+    wardrobe=data;saveData();renderList();renderStats();
+    showToast(`✓ 読み込みました（${data.length}件）`);
+  }catch(e){showToast('⚠️ JSON読み込み失敗: '+e.message,true);}
+}
+
+// ────────────────────────────
+// File System Access API
+// ────────────────────────────
+const hasFSA='showSaveFilePicker' in window;
+function initFSANote(){
+  const note=$('fsapi-note');
+  if(!hasFSA){note.textContent='※ Chrome/Edge推奨（他ブラウザはダウンロード形式になります）';note.classList.add('warn');}
+  else{note.textContent='※ Chrome/Edge: 任意のフォルダに直接保存できます';}
+}
+async function saveToFolder(){
+  if(!hasFSA){fallbackDL();return;}
+  try{
+    const h=await window.showSaveFilePicker({
+      suggestedName:'wardrobe_'+new Date().toISOString().slice(0,10)+'.json',
+      types:[{description:'JSON',accept:{'application/json':['.json']}}]
+    });
+    await writeHandle(h);
+    fsHandle=h;
+    activeFileName.textContent=h.name;
+    activeFileBar.classList.remove('hidden');
+    showToast('✓ 保存しました: '+h.name);
+  }catch(e){if(e.name!=='AbortError')showToast('⚠️ 保存失敗: '+e.message,true);}
+}
+async function writeHandle(h){const w=await h.createWritable();await w.write(makeJSON());await w.close();}
+function fallbackDL(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([makeJSON()],{type:'application/json'}));
+  a.download='wardrobe_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+  showToast('✓ ダウンロードしました');
+}
+async function overwriteSave(){
+  if(!fsHandle){showToast('⚠️ 先に「フォルダに保存」でファイルを指定してください',true);return;}
+  try{await writeHandle(fsHandle);showToast('✓ 上書き保存しました: '+fsHandle.name);}
+  catch(e){showToast('⚠️ 上書き失敗: '+e.message,true);}
+}
+
+// ────────────────────────────
+// Google Drive
+// ────────────────────────────
+const SCOPE='https://www.googleapis.com/auth/drive.file';
+function getClientId(){return localStorage.getItem('gdrive_client_id')||'';}
+function loadGIS(){
+  return new Promise((res,rej)=>{
+    if(window.google&&window.google.accounts){res();return;}
+    const s=document.createElement('script');
+    s.src='https://accounts.google.com/gsi/client';
+    s.onload=res;s.onerror=()=>rej(new Error('GISの読み込み失敗'));
+    document.head.appendChild(s);
+  });
+}
+function initTokenClient(clientId){
+  gTokenClient=window.google.accounts.oauth2.initTokenClient({
+    client_id:clientId,scope:SCOPE,
+    callback:async resp=>{
+      if(resp.error){updateGdriveUI(false);showToast('⚠️ 認証失敗: '+resp.error,true);return;}
+      gToken=resp.access_token;updateGdriveUI(true);showToast('✓ Google Driveに接続しました');
+      if(gModalMode==='save')await gDriveSaveNew();
+      else if(gModalMode==='load')await showDrivePicker();
+      gModalMode=null;
+    }
+  });
+}
+async function ensureToken(mode){
+  const cid=getClientId();
+  if(!cid){$('gdrive-details').open=true;showToast('⚠️ Client IDを設定してください',true);return false;}
+  gModalMode=mode;
+  if(!gToken){
+    try{await loadGIS();if(!gTokenClient)initTokenClient(cid);gTokenClient.requestAccessToken({prompt:'consent'});return false;}
+    catch(e){showToast('⚠️ '+e.message,true);return false;}
+  }
+  return true;
+}
+async function gDriveSaveNew(){
+  const name='wardrobe_'+new Date().toISOString().slice(0,10)+'.json';
+  const boundary='wrd_bnd';
+  const body=`--${boundary}\r\nContent-Type: application/json\r\n\r\n`+
+    JSON.stringify({name,mimeType:'application/json'})+
+    `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`+
+    makeJSON()+`\r\n--${boundary}--`;
+  try{
+    const res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
+      {method:'POST',headers:{'Authorization':'Bearer '+gToken,'Content-Type':'multipart/related; boundary='+boundary},body});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();gFileId=d.id;fsHandle=null;
+    activeFileName.textContent=d.name+' (Drive)';activeFileBar.classList.remove('hidden');
+    showToast('✓ Google Driveに保存しました');
+  }catch(e){showToast('⚠️ Drive保存失敗: '+e.message,true);}
+}
+async function gDriveOverwrite(){
+  if(!gFileId||!gToken)return;
+  try{
+    const res=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${gFileId}?uploadType=media`,
+      {method:'PATCH',headers:{'Authorization':'Bearer '+gToken,'Content-Type':'application/json'},body:makeJSON()});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    showToast('✓ Google Driveに上書き保存しました');
+  }catch(e){showToast('⚠️ Drive上書き失敗: '+e.message,true);}
+}
+async function showDrivePicker(){
+  modalBody.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">読み込み中…</div>';
+  driveModal.classList.remove('hidden');
+  try{
+    const res=await fetch(
+      "https://www.googleapis.com/drive/v3/files?q=mimeType%3D'application%2Fjson'&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime)&pageSize=20",
+      {headers:{'Authorization':'Bearer '+gToken}});
+    const data=await res.json();
+    const files=(data.files||[]).filter(f=>f.name.endsWith('.json'));
+    if(!files.length){modalBody.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">JSONファイルが見つかりません</div>';return;}
+    modalBody.innerHTML=files.map(f=>{
+      const d=f.modifiedTime?new Date(f.modifiedTime).toLocaleString('ja-JP'):'';
+      return`<div class="drive-file" data-file-id="${f.id}" data-file-name="${esc(f.name)}">
+        <span style="font-size:18px">📄</span>
+        <div><div class="df-name">${esc(f.name)}</div><div class="df-date">${d}</div></div>
+      </div>`;
+    }).join('');
+  }catch(e){modalBody.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text3)">取得失敗: ${esc(e.message)}</div>`;}
+}
+async function loadDriveFile(fileId,fileName){
+  driveModal.classList.add('hidden');
+  try{
+    const res=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {headers:{'Authorization':'Bearer '+gToken}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    importText(await res.text());
+    gFileId=fileId;fsHandle=null;
+    activeFileName.textContent=fileName+' (Drive)';activeFileBar.classList.remove('hidden');
+  }catch(e){showToast('⚠️ Driveファイル読込失敗: '+e.message,true);}
+}
+function updateGdriveUI(on){
+  $('gdot').className='gdot'+(on?' on':'');
+  $('gdrive-status-text').textContent=on?'Google Driveに接続中':'未接続';
+  $('gdrive-status-text').style.color=on?'#6dbf8a':'var(--text2)';
+  $('btn-gdrive-connect').style.display=on?'none':'';
+  $('btn-gdrive-disconnect').style.display=on?'':'none';
+}
+
+// ────────────────────────────
+// Events
+// ────────────────────────────
+// Field tabs (入力 / お気に入り) in register form
+document.getElementById('page-register').addEventListener('click',e=>{
+  // tab switch
+  const tab=e.target.closest('[data-ftab]');
+  if(tab){
+    const target=tab.dataset.target; // 'brand' or 'shop'
+    const isInput=tab.dataset.ftab==='input';
+    // update tab active state within this group
+    tab.closest('.field-tabs').querySelectorAll('.field-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    // show/hide input vs picker
+    $('f-'+target).classList.toggle('hidden',!isInput);
+    const picker=$('fav-picker-'+target);
+    if(isInput){picker.classList.add('hidden');}
+    else{renderFavPicker(target);picker.classList.remove('hidden');}
+    return;
+  }
+  // pick chip
+  const chip=e.target.closest('[data-pick-type]');
+  if(chip){
+    const type=chip.dataset.pickType;
+    $('f-'+type).value=chip.dataset.val;
+    // switch back to input tab
+    const tabs=$('f-'+type).closest('.field').querySelector('.field-tabs');
+    tabs.querySelectorAll('.field-tab').forEach(t=>t.classList.remove('active'));
+    tabs.querySelector('[data-ftab="input"]').classList.add('active');
+    $('fav-picker-'+type).classList.add('hidden');
+    $('f-'+type).classList.remove('hidden');
+  }
+});
+
+// Favorites settings
+$('btn-fav-brand-add').addEventListener('click',()=>{
+  const v=$('fav-brand-input').value.trim();
+  if(!v)return;
+  if(addFav('fav_brands',v)){$('fav-brand-input').value='';renderFavSettings('brand');showToast('✓ ブランドを追加しました');}
+  else showToast('⚠️ すでに登録済みです',true);
+});
+$('fav-brand-input').addEventListener('keydown',e=>{if(e.key==='Enter')$('btn-fav-brand-add').click();});
+
+$('btn-fav-shop-add').addEventListener('click',()=>{
+  const v=$('fav-shop-input').value.trim();
+  if(!v)return;
+  if(addFav('fav_shops',v)){$('fav-shop-input').value='';renderFavSettings('shop');showToast('✓ 購入店を追加しました');}
+  else showToast('⚠️ すでに登録済みです',true);
+});
+$('fav-shop-input').addEventListener('keydown',e=>{if(e.key==='Enter')$('btn-fav-shop-add').click();});
+
+// Delete fav tag
+$('page-settings').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-fav-del]');
+  if(!btn)return;
+  const type=btn.dataset.favDel;
+  removeFav('fav_'+type+'s',btn.dataset.val);
+  renderFavSettings(type);
+  showToast('削除しました');
+});
+
+// ────────────────────────────
+// Edit modal
+// ────────────────────────────
+let editingId = null;
+
+function openEditModal(id){
+  const item = wardrobe.find(i=>i.id===id);
+  if(!item) return;
+  editingId = id;
+  $('edit-type').value  = item.type  || 'その他';
+  $('edit-brand').value = item.brand || '';
+  $('edit-date').value  = item.date  || '';
+  $('edit-shop').value  = item.shop  || '';
+  $('edit-price').value = item.price || '';
+  $('edit-memo').value  = item.memo  || '';
+  $('edit-photo').value = '';
+  // 現在の写真プレビュー
+  const preview = $('edit-photo-preview');
+  if(item.photo){
+    preview.innerHTML=`<img src="${item.photo}" alt="現在の写真"
+      style="width:100%;height:auto;border-radius:10px;border:1.5px solid var(--border)"/>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px">↑ 現在の写真　差し替える場合は上のファイル選択から</p>`;
+  } else {
+    preview.innerHTML='';
+  }
+  $('edit-modal').classList.remove('hidden');
+  $('edit-brand').focus();
+}
+
+function closeEditModal(){
+  $('edit-modal').classList.add('hidden');
+  editingId = null;
+}
+
+function saveEdit(){
+  const item = wardrobe.find(i=>i.id===editingId);
+  if(!item){closeEditModal();return;}
+  const file = $('edit-photo').files[0];
+  function applyEdit(newPhoto){
+    item.type  = $('edit-type').value;
+    item.brand = $('edit-brand').value.trim() || null;
+    item.date  = $('edit-date').value  || null;
+    item.shop  = $('edit-shop').value.trim()  || null;
+    item.price = Math.max(0, Number($('edit-price').value)||0);
+    item.memo  = $('edit-memo').value.trim()  || null;
+    if(newPhoto !== undefined) item.photo = newPhoto; // 差し替えあり
+    saveData(); renderList(); closeEditModal();
+    showToast('✓ 編集を保存しました');
+  }
+  if(file) resizeImg(file, photo => applyEdit(photo));
+  else applyEdit(undefined); // 写真はそのまま
+}
+
+$('btn-add').addEventListener('click', addItem);
+$('edit-modal-close').addEventListener('click', closeEditModal);
+$('edit-cancel').addEventListener('click', closeEditModal);
+$('edit-modal').addEventListener('click', e=>{ if(e.target===$('edit-modal')) closeEditModal(); });
+$('edit-save').addEventListener('click', saveEdit);
+
+
+searchEl.addEventListener('input',renderList);
+
+// Category chips
+$('filter-bar').addEventListener('click',e=>{
+  const chip=e.target.closest('[data-cat]');
+  if(!chip)return;
+  currentCat=chip.dataset.cat;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  renderList();
+});
+
+// Sort
+document.querySelector('.sort-bar').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-sort]');
+  if(!btn)return;
+  currentSort=btn.dataset.sort;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+});
+
+// List events
+listEl.addEventListener('click',e=>{
+  const el=e.target.closest('[data-action]');if(!el)return;
+  if(el.dataset.action==='wear')  addWear(el.dataset.id);
+  if(el.dataset.action==='edit')  openEditModal(el.dataset.id);
+  if(el.dataset.action==='delete')deleteItem(el.dataset.id);
+});
+listEl.addEventListener('change',e=>{
+  const inp=e.target.closest('[data-action="set-wear"]');if(!inp)return;
+  setWear(inp.dataset.id,inp.value);
+});
+
+// Backup
+$('btn-backup-save').addEventListener('click',saveToFolder);
+$('btn-overwrite').addEventListener('click',async()=>{
+  if(gFileId&&gToken)await gDriveOverwrite();
+  else await overwriteSave();
+});
+$('import-file').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{importText(ev.target.result);fsHandle=null;gFileId=null;
+    activeFileName.textContent=file.name;activeFileBar.classList.remove('hidden');};
+  r.onerror=()=>showToast('⚠️ ファイル読み込みエラー',true);
+  r.readAsText(file);e.target.value='';
+});
+
+// GDrive
+$('btn-gdrive-save-cfg').addEventListener('click',()=>{
+  const cid=$('gdrive-client-id').value.trim();
+  if(!cid){showToast('⚠️ Client IDを入力してください',true);return;}
+  localStorage.setItem('gdrive_client_id',cid);
+  $('btn-gdrive-connect').disabled=false;showToast('✓ 設定を保存しました');
+});
+$('btn-gdrive-connect').addEventListener('click',async()=>{
+  const cid=getClientId();if(!cid){showToast('⚠️ Client IDを設定してください',true);return;}
+  try{
+    await loadGIS();if(!gTokenClient)initTokenClient(cid);
+    gModalMode=null;
+    $('gdot').className='gdot spin';$('gdrive-status-text').textContent='接続中…';
+    gTokenClient.requestAccessToken({prompt:'consent'});
+  }catch(e){showToast('⚠️ '+e.message,true);}
+});
+$('btn-gdrive-disconnect').addEventListener('click',()=>{
+  if(window.google&&window.google.accounts&&gToken)window.google.accounts.oauth2.revoke(gToken,()=>{});
+  gToken=null;gTokenClient=null;gFileId=null;updateGdriveUI(false);
+  if(activeFileName.textContent.includes('Drive'))activeFileBar.classList.add('hidden');
+  showToast('切断しました');
+});
+$('btn-gdrive-save').addEventListener('click',async()=>{if(await ensureToken('save'))await gDriveSaveNew();});
+$('btn-gdrive-load').addEventListener('click',async()=>{if(await ensureToken('load'))await showDrivePicker();});
+
+// Modal
+$('modal-close').addEventListener('click',()=>driveModal.classList.add('hidden'));
+$('modal-cancel').addEventListener('click',()=>driveModal.classList.add('hidden'));
+driveModal.addEventListener('click',e=>{if(e.target===driveModal)driveModal.classList.add('hidden');});
+$('modal-body').addEventListener('click',e=>{
+  const f=e.target.closest('[data-file-id]');if(!f)return;
+  loadDriveFile(f.dataset.fileId,f.dataset.fileName);
+});
+
+// ────────────────────────────
+// Init
+// ────────────────────────────
+(function init(){
+  const cid=getClientId();
+  if(cid){$('gdrive-client-id').value=cid;$('btn-gdrive-connect').disabled=false;}
+  initFSANote();
+  renderList();
+})();
+
+})();
+</script>
+</body>
+</html>
