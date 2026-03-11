@@ -1491,6 +1491,60 @@ function generateIcons(t){
 }
 
 })();
+
+// ────────────────────────────
+// スワイプでタブ切り替え
+// ────────────────────────────
+(function(){
+  const PAGES = ['register','wardrobe','stats','settings'];
+  let startX = 0, startY = 0, startTime = 0;
+  let isSwiping = false;
+
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+    isSwiping = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    const dy = Math.abs(e.touches[0].clientY - startY);
+    // 横方向が優勢なら「スワイプ中」フラグ
+    if (dx > dy && dx > 10) isSwiping = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if (!isSwiping) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    const dt = Date.now() - startTime;
+
+    // 横スワイプ判定: 50px以上 / 縦より横が優勢 / 400ms以内
+    if (Math.abs(dx) < 50) return;
+    if (Math.abs(dy) > Math.abs(dx) * 0.65) return;
+    if (dt > 400) return;
+
+    // 入力中（テキスト選択ドラッグなど）は無視
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+
+    const activeTab = document.querySelector('.tab.active');
+    if (!activeTab) return;
+    const cur = PAGES.indexOf(activeTab.dataset.page);
+    if (cur === -1) return;
+
+    const next = dx < 0
+      ? Math.min(cur + 1, PAGES.length - 1)   // 左スワイプ → 次のタブ
+      : Math.max(cur - 1, 0);                  // 右スワイプ → 前のタブ
+
+    if (next === cur) return;
+
+    const nextTab = document.querySelector(`.tab[data-page="${PAGES[next]}"]`);
+    if (nextTab) nextTab.click();
+  }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
