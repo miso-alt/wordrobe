@@ -85,12 +85,12 @@ body{
 /* ── Tabs ── */
 .tabs{
   max-width:800px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);
+  display:grid;grid-template-columns:repeat(5,1fr);
   border-bottom:none;
 }
 .tab{
-  padding:10px 6px 13px;
-  text-align:center;font-size:12px;font-weight:500;
+  padding:10px 3px 13px;
+  text-align:center;font-size:11px;font-weight:500;
   color:var(--text3);cursor:pointer;border:none;background:none;
   border-bottom:2.5px solid transparent;
   transition:color .2s,border-color .2s;font-family:inherit;
@@ -401,11 +401,76 @@ details[open] .gdrive-summary::after{transform:rotate(180deg)}
 .fav-tag-del:hover{color:#a03040}
 .fav-empty{font-size:12px;color:var(--text3);padding:4px 0}
 
+/* ── Photo Lightbox ── */
+.lightbox{
+  position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;cursor:zoom-out;
+}
+.lightbox.hidden{display:none}
+.lightbox img{
+  max-width:100%;max-height:90vh;
+  border-radius:12px;object-fit:contain;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  cursor:default;
+  animation:lbIn .18s ease;
+}
+@keyframes lbIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.lightbox-close{
+  position:fixed;top:16px;right:18px;
+  background:rgba(255,255,255,.15);border:none;color:#fff;
+  font-size:22px;width:40px;height:40px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);transition:background .15s;
+}
+.lightbox-close:hover{background:rgba(255,255,255,.28)}
+.item-photo{cursor:zoom-in;}
+.item-photo:hover{opacity:.92;transition:opacity .15s}
+
 @media(max-width:480px){
   .grid2{grid-template-columns:1fr}
   .stat-grid{grid-template-columns:1fr}
   .stat-tile.wide{grid-column:auto}
 }
+
+/* ── Wishlist ── */
+.wish-item{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;padding:15px 16px;margin-bottom:10px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.wish-item:hover{border-color:var(--border2);box-shadow:0 3px 14px var(--shadow)}
+.wish-badge{
+  font-size:10px;padding:2px 9px;border-radius:12px;
+  background:#fff8e0;color:#b8860b;border:1px solid #e8d890;
+  font-weight:600;white-space:nowrap;margin-left:8px;
+}
+.wish-url{
+  font-size:11px;color:var(--accent);text-decoration:none;
+  display:inline-flex;align-items:center;gap:3px;margin-bottom:8px;
+}
+.wish-url:hover{text-decoration:underline}
+.wish-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-buy{
+  padding:7px 14px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  border:none;font-family:inherit;transition:all .15s;
+  display:inline-flex;align-items:center;gap:4px;width:auto;
+  box-shadow:0 2px 8px var(--shadow);
+}
+.btn-buy:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 14px var(--shadow)}
+.btn-buy:active{transform:none}
+.wish-empty{text-align:center;padding:48px 20px;color:var(--text3)}
+.wish-empty .e-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.wish-budget{font-size:12px;color:var(--text3);margin-bottom:6px;line-height:1.8}
+
+/* 購入モーダル */
+.buy-modal-overlay{
+  position:fixed;inset:0;background:rgba(58,34,40,.45);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.buy-modal-overlay.hidden{display:none}
+
 </style>
 </head>
 <body>
@@ -419,6 +484,7 @@ details[open] .gdrive-summary::after{transform:rotate(180deg)}
   <nav class="tabs" id="tabs">
     <button class="tab active" data-page="register"><span class="tab-icon">✏️</span>登録</button>
     <button class="tab" data-page="wardrobe"><span class="tab-icon" id="wardrobe-tab-icon">👗</span>ワードローブ</button>
+    <button class="tab" data-page="wishlist"><span class="tab-icon">💝</span>ほしいもの</button>
     <button class="tab" data-page="stats"><span class="tab-icon">📊</span>統計</button>
     <button class="tab" data-page="settings"><span class="tab-icon">⚙️</span>設定</button>
   </nav>
@@ -518,6 +584,86 @@ details[open] .gdrive-summary::after{transform:rotate(180deg)}
     <div class="list-count"><span id="count">0</span> 件</div>
   </div>
   <div id="list"></div>
+</div>
+
+<!-- ═══ PAGE: ほしいものリスト ═══ -->
+<div class="page" id="page-wishlist">
+  <div class="card">
+    <div class="card-title">💝 ほしいものを追加</div>
+    <div class="grid2">
+      <div class="field">
+        <label>種類</label>
+        <select id="w-type">
+          <option>コート</option><option>ジャケット</option><option>スーツ</option>
+          <option>シャツ</option><option>Tシャツ</option><option>パンツ</option>
+          <option>靴</option><option>時計</option><option>バッグ</option>
+          <option>アクセサリー</option><option>カジュアル</option><option>その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ブランド</label>
+        <input id="w-brand" placeholder="例: UNIQLO"/>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>予算 (¥)</label>
+        <input type="number" id="w-price" min="0" placeholder="0"/>
+      </div>
+      <div class="field">
+        <label>購入予定店</label>
+        <input id="w-shop" placeholder="例: 新宿伊勢丹"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>参考URL（省略可）</label>
+      <input type="url" id="w-url" placeholder="https://…"/>
+    </div>
+    <div class="field">
+      <label>メモ</label>
+      <textarea id="w-memo" placeholder="サイズ、色、気になる理由など"></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn-wish-add">💝 リストに追加</button>
+  </div>
+
+  <div class="list-header">
+    <div class="list-title">ほしいものリスト</div>
+    <div class="list-count"><span id="wish-count">0</span> 件</div>
+  </div>
+  <div id="wish-list"></div>
+</div>
+
+<!-- 購入確定モーダル -->
+<div class="buy-modal-overlay hidden" id="buy-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hd">
+      <span class="modal-hd-title">🛍️ 購入情報を入力</span>
+      <button class="modal-x" id="buy-modal-close">✕</button>
+    </div>
+    <div class="modal-bd" style="padding:18px 20px">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.7">
+        購入情報を確認・入力してワードローブに追加します。
+      </p>
+      <div class="grid2">
+        <div class="field">
+          <label>購入日</label>
+          <input type="date" id="buy-date"/>
+        </div>
+        <div class="field">
+          <label>購入店</label>
+          <input id="buy-shop" placeholder="例: 新宿伊勢丹"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>実際の購入金額 (¥)</label>
+        <input type="number" id="buy-price" min="0" placeholder="0"/>
+      </div>
+    </div>
+    <div class="modal-ft" style="gap:10px">
+      <button class="btn btn-ghost btn-sm" id="buy-cancel">キャンセル</button>
+      <button class="btn btn-primary btn-sm" id="buy-confirm" style="padding:8px 22px">🛍️ ワードローブに追加</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ PAGE: 統計 ═══ -->
@@ -694,6 +840,12 @@ details[open] .gdrive-summary::after{transform:rotate(180deg)}
   </div>
 </div>
 
+<!-- 写真ライトボックス -->
+<div class="lightbox hidden" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close">✕</button>
+  <img id="lightbox-img" src="" alt=""/>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -817,6 +969,7 @@ document.getElementById('tabs').addEventListener('click',e=>{
   tab.classList.add('active');
   $('page-'+tab.dataset.page).classList.add('active');
   if(tab.dataset.page==='wardrobe') renderList();
+  if(tab.dataset.page==='wishlist') { if(typeof window.renderWishlist==='function') window.renderWishlist(); }
   if(tab.dataset.page==='stats')    renderStats();
   if(tab.dataset.page==='settings'){renderFavSettings('brand');renderFavSettings('shop');}
 });
@@ -840,6 +993,24 @@ function addItem(){
   }
   if(file)resizeImg(file,create);else create(null);
 }
+
+// ほしいものリストからの追加フック
+window._wardrobeAddItem=function(newItem){
+  wardrobe.push({
+    id:       newItem.id,
+    type:     newItem.type,
+    brand:    newItem.brand||null,
+    date:     newItem.date||null,
+    shop:     newItem.shop||null,
+    price:    newItem.price||0,
+    memo:     newItem.memo||null,
+    wear:     0,
+    photo:    null,
+    createdAt:new Date().toISOString()
+  });
+  saveData();
+  renderList();
+};
 
 // 1MB上限・圧縮処理
 // base64で保存するため 1MB画像 ≒ 1.37MB文字列。
@@ -951,7 +1122,7 @@ function renderList(){
         💰 ¥${item.price.toLocaleString()}
       </div>
       ${item.memo?`<div class="item-memo">${esc(item.memo)}</div>`:''}
-      ${item.photo?`<img class="item-photo" src="${item.photo}" alt="${esc(item.brand)}" loading="lazy"/>`:''}
+      ${item.photo?`<img class="item-photo" src="${item.photo}" alt="${esc(item.brand)}" loading="lazy" data-lightbox="1"/>`:''}
       <div class="wear-row" data-id="${item.id}">
         <button class="wear-plus" data-action="wear" data-id="${item.id}">👕 着た +1</button>
         <div class="wear-input-wrap">
@@ -1438,6 +1609,7 @@ $('modal-body').addEventListener('click',e=>{
   const savedTheme=localStorage.getItem('wardrobe_theme')||'pink';
   applyTheme(savedTheme);
   renderList();
+  if(typeof window.renderWishlist==='function') window.renderWishlist();
 })();
 
 // ── PWA アイコン生成 ──
@@ -1493,29 +1665,205 @@ function generateIcons(t){
 })();
 
 // ────────────────────────────
+// ほしいものリスト
+// ────────────────────────────
+(function(){
+
+function loadWishlist(){
+  try{return JSON.parse(localStorage.getItem('wardrobe_wishlist')||'[]');}catch{return [];}
+}
+function saveWishlist(list){
+  try{localStorage.setItem('wardrobe_wishlist',JSON.stringify(list));}catch{}
+}
+
+const $=id=>document.getElementById(id);
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function showToast(msg,err){
+  const t=$('toast');t.textContent=msg;t.className='toast'+(err?' err':'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+let wishlist = loadWishlist();
+let buyingId = null;
+
+function renderWishlist(){
+  const listEl=$('wish-list');
+  const countEl=$('wish-count');
+  if(!listEl)return;
+  countEl.textContent=wishlist.length;
+  if(!wishlist.length){
+    listEl.innerHTML=`<div class="wish-empty">
+      <div class="e-icon">💝</div>
+      <p>ほしいものをリストに追加しましょう</p>
+    </div>`;
+    return;
+  }
+  listEl.innerHTML=wishlist.map(w=>{
+    const budget = w.price ? `¥${Number(w.price).toLocaleString()}` : '予算未設定';
+    const meta = [w.shop?`🏪 ${esc(w.shop)}`:'', w.addedAt?`📅 ${w.addedAt}`:''].filter(Boolean).join('　');
+    return `<div class="wish-item">
+      <div class="item-top">
+        <span class="item-brand">${esc(w.brand)||'ブランド未設定'}<span class="wish-badge">${esc(w.type)}</span></span>
+      </div>
+      <div class="wish-budget">💰 ${budget}${meta?'　'+meta:''}</div>
+      ${w.memo?`<div class="item-memo">${esc(w.memo)}</div>`:''}
+      ${w.url?`<a class="wish-url" href="${esc(w.url)}" target="_blank" rel="noopener">🔗 参考リンクを開く</a>`:''}
+      <div class="wish-actions">
+        <button class="btn-buy" data-wish-buy="${w.id}">🛍️ 購入しました</button>
+        <button class="item-del" data-wish-del="${w.id}">🗑️ 削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 追加
+$('btn-wish-add').addEventListener('click',()=>{
+  const brand=$('w-brand').value.trim();
+  const type=$('w-type').value;
+  if(!brand&&!type){showToast('⚠️ 種類かブランドを入力してください',true);return;}
+  const item={
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    type,
+    brand: $('w-brand').value.trim()||null,
+    price: Math.max(0,Number($('w-price').value)||0),
+    shop:  $('w-shop').value.trim()||null,
+    url:   $('w-url').value.trim()||null,
+    memo:  $('w-memo').value.trim()||null,
+    addedAt: new Date().toLocaleDateString('ja-JP'),
+  };
+  wishlist.unshift(item);
+  saveWishlist(wishlist);
+  // フォームリセット
+  $('w-brand').value='';$('w-price').value='';$('w-shop').value='';
+  $('w-url').value='';$('w-memo').value='';
+  showToast('💝 ほしいものに追加しました');
+  renderWishlist();
+});
+
+// リストクリックイベント
+$('wish-list').addEventListener('click',e=>{
+  // 購入ボタン
+  const buyBtn=e.target.closest('[data-wish-buy]');
+  if(buyBtn){
+    buyingId=buyBtn.dataset.wishBuy;
+    const w=wishlist.find(x=>x.id===buyingId);
+    if(!w)return;
+    // モーダルに初期値をセット
+    const today=new Date().toISOString().slice(0,10);
+    $('buy-date').value=today;
+    $('buy-shop').value=w.shop||'';
+    $('buy-price').value=w.price||'';
+    $('buy-modal').classList.remove('hidden');
+    return;
+  }
+  // 削除ボタン
+  const delBtn=e.target.closest('[data-wish-del]');
+  if(delBtn){
+    if(!confirm('このアイテムをほしいものリストから削除しますか？'))return;
+    wishlist=wishlist.filter(x=>x.id!==delBtn.dataset.wishDel);
+    saveWishlist(wishlist);
+    showToast('削除しました');
+    renderWishlist();
+  }
+});
+
+// 購入モーダルを閉じる
+function closeBuyModal(){$('buy-modal').classList.add('hidden');buyingId=null;}
+$('buy-modal-close').addEventListener('click',closeBuyModal);
+$('buy-cancel').addEventListener('click',closeBuyModal);
+$('buy-modal').addEventListener('click',e=>{if(e.target===$('buy-modal'))closeBuyModal();});
+
+// 購入確定 → ワードローブに追加
+$('buy-confirm').addEventListener('click',()=>{
+  const w=wishlist.find(x=>x.id===buyingId);
+  if(!w){closeBuyModal();return;}
+
+  // wardrobe配列はグローバルに存在するので直接追加
+  const newItem={
+    id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    type:  w.type,
+    brand: w.brand,
+    date:  $('buy-date').value||null,
+    shop:  $('buy-shop').value.trim()||w.shop||null,
+    price: Math.max(0,Number($('buy-price').value)||0),
+    memo:  w.memo||null,
+    photo: null,
+    wears: 0,
+    createdAt: Date.now(),
+  };
+
+  // グローバルの wardrobe を参照するため window 経由で呼び出し
+  if(typeof window._wardrobeAddItem==='function'){
+    window._wardrobeAddItem(newItem);
+  }
+
+  // wishlistから削除
+  wishlist=wishlist.filter(x=>x.id!==buyingId);
+  saveWishlist(wishlist);
+  closeBuyModal();
+  renderWishlist();
+  showToast('🛍️ ワードローブに追加しました！');
+
+  // ワードローブタブへジャンプ
+  setTimeout(()=>{
+    const tab=document.querySelector('.tab[data-page="wardrobe"]');
+    if(tab)tab.click();
+  },600);
+});
+
+// グローバルに公開（init内から呼べるように）
+window.renderWishlist=renderWishlist;
+
+})();
+
+// ────────────────────────────
+// 写真ライトボックス
+// ────────────────────────────
+(function(){
+  const lb    = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbClose = document.getElementById('lightbox-close');
+
+  function open(src, alt){
+    lbImg.src = src;
+    lbImg.alt = alt || '';
+    lb.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    lb.classList.add('hidden');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  // 写真タップで拡大
+  document.addEventListener('click', e => {
+    const img = e.target.closest('[data-lightbox]');
+    if(img) open(img.src, img.alt);
+  });
+
+  // 閉じるボタン・背景タップで閉じる
+  lbClose.addEventListener('click', close);
+  lb.addEventListener('click', e => { if(e.target === lb) close(); });
+
+  // ESCキーでも閉じる
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+})();
+
+// ────────────────────────────
 // スワイプでタブ切り替え
 // ────────────────────────────
 (function(){
-  const PAGES = ['register','wardrobe','stats','settings'];
+  const PAGES = ['register','wardrobe','wishlist','stats','settings'];
   let startX = 0, startY = 0, startTime = 0;
-  let isSwiping = false;
 
   document.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     startTime = Date.now();
-    isSwiping = false;
-  }, { passive: true });
-
-  document.addEventListener('touchmove', e => {
-    const dx = Math.abs(e.touches[0].clientX - startX);
-    const dy = Math.abs(e.touches[0].clientY - startY);
-    // 横方向が優勢なら「スワイプ中」フラグ
-    if (dx > dy && dx > 10) isSwiping = true;
   }, { passive: true });
 
   document.addEventListener('touchend', e => {
-    if (!isSwiping) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     const dt = Date.now() - startTime;
@@ -1525,7 +1873,7 @@ function generateIcons(t){
     if (Math.abs(dy) > Math.abs(dx) * 0.65) return;
     if (dt > 400) return;
 
-    // 入力中（テキスト選択ドラッグなど）は無視
+    // 入力中は無視
     const active = document.activeElement;
     if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
 
@@ -1535,8 +1883,8 @@ function generateIcons(t){
     if (cur === -1) return;
 
     const next = dx < 0
-      ? Math.min(cur + 1, PAGES.length - 1)   // 左スワイプ → 次のタブ
-      : Math.max(cur - 1, 0);                  // 右スワイプ → 前のタブ
+      ? Math.min(cur + 1, PAGES.length - 1)
+      : Math.max(cur - 1, 0);
 
     if (next === cur) return;
 
